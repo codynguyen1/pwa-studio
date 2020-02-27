@@ -15,9 +15,16 @@
   "bugs": {
     "url": "https://github.com/magento/pwa-studio/issues"
   },
+  "pwa-studio": {
+    "targets": {
+      "declare": "./targets/declare",
+      "intercept": "./targets/intercept"
+    }
+  },
   "homepage": "https://github.com/magento/pwa-studio/tree/master/packages/peregrine#readme",
   "devDependencies": {
     "@magento/eslint-config": "~1.5.0",
+    "deepmerge": "~4.2.2",
     "intl": "~1.2.5",
     "react": "~16.9.0",
     "react-dom": "~16.9.0",

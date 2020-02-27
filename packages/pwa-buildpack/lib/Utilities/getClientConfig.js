@@ -21,8 +21,11 @@ module.exports = async function({
     hasFlag,
     vendor,
     projectConfig,
-    stats
+    stats,
+    bus
 }) {
+    const targets = bus.getTargetsOf('@magento/pwa-buildpack');
+
     let vendorTest = '[\\/]node_modules[\\/]';
 
     if (vendor.length > 0) {
@@ -69,6 +72,12 @@ module.exports = async function({
                             options: {
                                 envName: mode,
                                 rootMode: babelConfigPresent ? 'root' : 'upward'
+                            }
+                        },
+                        {
+                            loader: 'wrap-esm-loader',
+                            options: {
+                                wrap: targets.wrapEsModules.call({})
                             }
                         }
                     ]
@@ -123,6 +132,14 @@ module.exports = async function({
             },
             isEE
         }),
+        resolveLoader: {
+            modules: [
+                path.resolve(__dirname, '../WebpackTools/loaders'),
+                'node_modules'
+            ],
+            extensions: ['.js'],
+            mainFields: ['loader', 'main']
+        },
         plugins: [
             new RootComponentsPlugin({
                 rootComponentsDirs: [
@@ -203,7 +220,7 @@ module.exports = async function({
             // Using eval-source-map shows original source (non-transpiled) as
             // well as comments.
             // See https://webpack.js.org/configuration/devtool/
-            config.devtool = 'eval-source-map';
+            config.devtool = 'inline-source-map';
             debug('Configuring Dev Server');
             await PWADevServer.configure(
                 {

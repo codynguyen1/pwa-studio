@@ -12,8 +12,8 @@ class Target extends Trackable {
         super();
         this._owner = owner;
         this._tapable = tapable;
-        this._targetName = targetName;
         this._requestor = requestor;
+        this.name = targetName;
         this.identify(`${targetName}[${tapableType}]`, owner);
     }
     _invokeTap(method, customName, tap) {
@@ -62,7 +62,7 @@ Target.External = class ExternalTarget extends Target {
     _throwOnExternalInvoke(method) {
         throw new Error(
             `${this._requestor} ran targets.of("${this._owner}").${
-                this._targetName
+                this.name
             }.${method}(). Only ${this.owner} can invoke its own targets. ${
                 this._requestor
             } can only intercept them.`

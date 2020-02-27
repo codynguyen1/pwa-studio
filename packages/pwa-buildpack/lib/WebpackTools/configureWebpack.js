@@ -116,7 +116,8 @@ async function configureWebpack(options) {
 
     const clientConfig = await getClientConfig({
         ...configOptions,
-        vendor: options.vendor || []
+        vendor: options.vendor || [],
+        bus
     });
 
     clientConfig.plugins.unshift(new BuildBusPlugin(bus, busTrackingQueue));
