@@ -6,6 +6,7 @@ const pkgDir = require('pkg-dir');
 const loadEnvironment = require('../Utilities/loadEnvironment');
 const getClientConfig = require('../Utilities/getClientConfig');
 const getServiceWorkerConfig = require('../Utilities/getServiceWorkerConfig');
+const MagentoResolver = require('../WebpackTools/MagentoResolver');
 const BuildBus = require('../BuildBus');
 const BuildBusPlugin = require('./plugins/BuildBusPlugin');
 
@@ -83,25 +84,40 @@ async function configureWebpack(options) {
         output: path.resolve(context, 'dist')
     };
 
+    const isEE = projectConfig.env.MAGENTO_BACKEND_EDITION === 'EE';
+
+    const resolverOpts = {
+        paths: {
+            root: context,
+            isEE
+        }
+    };
+    if (options.alias) {
+        resolverOpts.alias = { ...options.alias };
+    }
+    const magentoResolver = new MagentoResolver(resolverOpts);
+
     const special = options.special || {};
     bus.getTargetsOf('@magento/pwa-buildpack').specialFeatures.call(special);
 
     const features = await Promise.all(
         Object.entries(special).map(async ([packageName, flags]) => [
-            await pkgDir(path.dirname(require.resolve(packageName))),
+            packageName,
+            await pkgDir(
+                path.dirname(await magentoResolver.resolve(packageName))
+            ),
             flags
         ])
     );
 
     const hasFlag = flag =>
         features.reduce(
-            (hasIt, [packagePath, flags]) =>
+            (hasIt, [, packagePath, flags]) =>
                 flags[flag] ? [...hasIt, packagePath] : hasIt,
             []
         );
 
     const mode = getMode(options.env, projectConfig);
-
     const configOptions = {
         mode,
         context,
@@ -109,15 +125,16 @@ async function configureWebpack(options) {
         paths,
         hasFlag,
         projectConfig,
-        stats
+        resolve: magentoResolver.config,
+        stats,
+        bus
     };
 
     const serviceWorkerConfig = getServiceWorkerConfig(configOptions);
 
     const clientConfig = await getClientConfig({
         ...configOptions,
-        vendor: options.vendor || [],
-        bus
+        vendor: options.vendor || []
     });
 
     clientConfig.plugins.unshift(new BuildBusPlugin(bus, busTrackingQueue));

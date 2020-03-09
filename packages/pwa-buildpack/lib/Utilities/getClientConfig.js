@@ -7,7 +7,6 @@ const TerserPlugin = require('terser-webpack-plugin');
 const PWADevServer = require('../WebpackTools/PWADevServer');
 const RootComponentsPlugin = require('../WebpackTools/plugins/RootComponentsPlugin');
 const UpwardIncludePlugin = require('../WebpackTools/plugins/UpwardIncludePlugin');
-const MagentoResolver = require('../WebpackTools/MagentoResolver');
 
 function isDevServer() {
     return process.argv.find(v => v.includes('webpack-dev-server'));
@@ -22,6 +21,7 @@ module.exports = async function({
     vendor,
     projectConfig,
     stats,
+    resolve,
     bus
 }) {
     const targets = bus.getTargetsOf('@magento/pwa-buildpack');
@@ -31,8 +31,6 @@ module.exports = async function({
     if (vendor.length > 0) {
         vendorTest += `(${vendor.join('|')})[\\\/]`;
     }
-
-    const isEE = projectConfig.env.MAGENTO_BACKEND_EDITION === 'EE';
 
     debug('Creating client config');
 
@@ -126,12 +124,7 @@ module.exports = async function({
                 }
             ]
         },
-        resolve: await MagentoResolver.configure({
-            paths: {
-                root: context
-            },
-            isEE
-        }),
+        resolve,
         resolveLoader: {
             modules: [
                 path.resolve(__dirname, '../WebpackTools/loaders'),

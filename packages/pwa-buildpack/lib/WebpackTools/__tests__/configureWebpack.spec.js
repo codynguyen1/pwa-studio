@@ -1,4 +1,3 @@
-jest.mock('fs');
 jest.mock('pertain');
 jest.mock('pkg-dir');
 jest.mock('webpack-assets-manifest');
@@ -8,8 +7,11 @@ jest.mock('../PWADevServer');
 
 jest.mock('../../BuildBus/declare-base');
 
+const path = require('path');
 const fs = require('fs');
-const { SyncHook } = require('tapable');
+const stat = jest.spyOn(fs, 'stat');
+
+const { SyncHook, SyncWaterfallHook } = require('tapable');
 const declareBase = require('../../BuildBus/declare-base');
 const pertain = require('pertain');
 const pkgDir = require('pkg-dir');
@@ -32,7 +34,9 @@ const envVarDefsHook = new SyncHook(['envVarDefs']);
 declareBase.mockImplementation(targets => {
     targets.declare({
         envVarDefinitions: envVarDefsHook,
-        specialFeatures: specialFeaturesHook
+        specialFeatures: specialFeaturesHook,
+        webpackCompiler: new SyncHook(['compiler']),
+        wrapEsModules: new SyncWaterfallHook(['blorf'])
     });
 });
 
@@ -43,7 +47,7 @@ beforeEach(() => {
 });
 
 const mockStat = (dir, file, err = null) => {
-    fs.stat.mockImplementationOnce((_, callback) =>
+    stat.mockImplementationOnce((_, callback) =>
         callback(err, { isDirectory: () => dir, isFile: () => file })
     );
 };
@@ -197,14 +201,14 @@ test('handles special flags', async () => {
         .productionEnvironment();
 
     const special = {
-        jest: {
+        localModule1: {
             esModules: true,
             cssModules: true,
             graphqlQueries: true,
             rootComponents: true,
             upward: true
         },
-        'pkg-dir': {
+        depModule1: {
             esModules: true,
             cssModules: true,
             graphqlQueries: true,
@@ -218,19 +222,19 @@ test('handles special flags', async () => {
     const specialFeaturesTap = jest.fn(x => x);
     specialFeaturesHook.tap('configureWebpack.spec.js', specialFeaturesTap);
     const { clientConfig } = await configureWebpack({
-        context: './fake/different/context',
+        context: path.resolve(__dirname, '__fixtures__/resolverContext'),
         vendor: ['jest'],
         special
     });
-    expect(
-        clientConfig.module.rules.find(({ use }) =>
-            use.some(({ loader }) => /^graphql\-tag/.test(loader))
-        ).include
-    ).toHaveLength(3);
+
+    const gqlLoader = ({ use }) =>
+        use.some(({ loader }) => /^graphql\-tag/.test(loader));
+    expect(clientConfig.module.rules.find(gqlLoader).include).toHaveLength(3);
+
     expect(RootComponentsPlugin).toHaveBeenCalled();
     expect(
         RootComponentsPlugin.mock.calls[0][0].rootComponentsDirs.some(entry =>
-            entry.includes('jest')
+            entry.includes('localModule1')
         )
     ).toBeTruthy();
     expect(declareBase).toHaveBeenCalledTimes(1);
