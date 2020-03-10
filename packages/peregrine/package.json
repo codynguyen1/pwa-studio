@@ -15,12 +15,6 @@
   "bugs": {
     "url": "https://github.com/magento/pwa-studio/issues"
   },
-  "pwa-studio": {
-    "targets": {
-      "declare": "./targets/declare",
-      "intercept": "./targets/intercept"
-    }
-  },
   "homepage": "https://github.com/magento/pwa-studio/tree/master/packages/peregrine#readme",
   "devDependencies": {
     "@magento/eslint-config": "~1.5.0",
@@ -50,6 +44,12 @@
   "engines": {
     "node": ">=10.x",
     "yarn": ">=1.12.0"
+  },
+  "pwa-studio": {
+    "targets": {
+      "declare": "./targets/declare",
+      "intercept": "./targets/intercept"
+    }
   },
   "module": "lib/index.js",
   "jsnext:main": "lib/index.js",

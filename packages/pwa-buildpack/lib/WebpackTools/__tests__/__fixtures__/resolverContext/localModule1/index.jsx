@@ -1,1 +1,1 @@
-module.exports = () => 'localModule1';
+export const Hi = () => <h1>hi</h1>;

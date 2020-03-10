@@ -64,7 +64,10 @@ module.exports = async env => {
      * supports the `module.noParse` option in Webpack, documented here:
      * https://webpack.js.org/configuration/module/#modulenoparse
      */
-    clientConfig.module.noParse = [/braintree\-web\-drop\-in/];
+    clientConfig.module.noParse = [
+        /braintree\-web\-drop\-in/,
+        /magento2\-snowplow\-js\/src\/sp/
+    ];
     clientConfig.plugins = [
         ...clientConfig.plugins,
         new DefinePlugin({

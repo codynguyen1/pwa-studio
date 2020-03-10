@@ -94,6 +94,7 @@
     "load-google-maps-api": "~2.0.1",
     "lodash.escape": "~4.0.1",
     "lodash.over": "~4.7.0",
+    "magento2-snowplow-js": "~0.0.1",
     "memoize-one": "~5.0.0",
     "memory-fs": "~0.4.1",
     "node-html-parser": "~1.1.16",
