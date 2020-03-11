@@ -47,8 +47,8 @@
   },
   "pwa-studio": {
     "targets": {
-      "declare": "./targets/declare",
-      "intercept": "./targets/intercept"
+      "declare": "./lib/targets/declare",
+      "intercept": "./lib/targets/intercept"
     }
   },
   "module": "lib/index.js",

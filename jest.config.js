@@ -304,7 +304,11 @@ const jestConfig = {
             modulePaths: [
                 inPackage('lib/Utilities/__tests__/__fixtures__/modules')
             ],
-            setupFiles: [inPackage('scripts/fetch-mock.js')]
+            setupFiles: [inPackage('scripts/fetch-mock.js')],
+            transform: {
+                // Use babel-jest for .mjs
+                '\\.es6.js$': 'babel-jest'
+            }
         })),
         // Test any root CI scripts as well, to ensure stable CI behavior.
         configureProject('scripts', 'CI Scripts', () => ({

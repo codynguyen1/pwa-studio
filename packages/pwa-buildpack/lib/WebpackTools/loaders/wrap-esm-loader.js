@@ -1,11 +1,13 @@
 const Template = require('webpack/lib/Template');
 
-const uniqueJsId = name =>
-    `${Template.toIdentifier(
-        name.includes('/') ? name.slice(name.lastIndexOf('/')) : name
-    )}$${(~~(Math.random() * 1000)).toString(36)}`;
-
 function wrapEsmLoader(content) {
+    let ids = 0;
+
+    const uniqueJsId = name =>
+        `${Template.toIdentifier(
+            name.includes('/') ? name.slice(name.lastIndexOf('/')) : name
+        )}_${++ids}`;
+
     const { wrap } = this.query;
     const exportMap = wrap[this.resourcePath];
     if (!exportMap) {
@@ -120,7 +122,7 @@ function wrapEsmLoader(content) {
                 wrappedExports.replace(
                     exportRE(exportName),
                     `\n$1${exportIntermediateVar}`
-                ) + `\n;export const ${exportName} = ${finalExport};\n`;
+                ) + `;\nexport const ${exportName} = ${finalExport};\n`;
         }
     }
     this.callback(null, imports + '\n' + wrappedExports); //, finalSourceMap, ast);

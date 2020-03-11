@@ -14,8 +14,8 @@
       "react": {
         "pagebuilder": "PageBuilder",
         "venia-concept": "Venia Storefront",
-        "venia-ui": "Venia UI",
-        "pwa-product-recs": "Product Recs"
+        "venia-styleguide": "Venia Styleguide",
+        "venia-ui": "Venia UI"
       }
     }
   },
